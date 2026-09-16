@@ -132,6 +132,22 @@ def mean_plots(avg: pd.DataFrame) -> None:
         plt.close(fig)
         print(f"Bonus: wrote {filename}")
 
+#Bonus 2
+def volatility_plot(vol: pd.DataFrame) -> None:
+    """Grouped bar chart comparing hub volatility by year."""
+    wide = vol.pivot(index="Year", columns="SettlementPoint", values="HourlyVolatility")
+    ax = wide.plot(kind="bar", figsize=(12, 6), width=0.8)
+    ax.set_title("Hourly Price Volatility by Settlement Hub and Year")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Hourly Volatility (std. dev. of log returns)")
+    ax.legend(title="Settlement Hub", loc="upper left", bbox_to_anchor=(1.01, 1))
+    ax.grid(axis="y", alpha=0.3)
+    plt.xticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(OUT_DIR / "HourlyVolatilityByHubAndYear.png", dpi=150)
+    plt.close()
+    print("Bonus: wrote HourlyVolatilityByHubAndYear.png")
+
 if __name__ == "__main__":
     #Task 1
     OUT_DIR.mkdir(exist_ok=True)
@@ -158,3 +174,6 @@ if __name__ == "__main__":
     ##############################
     #Bonus 1
     mean_plots(avg)
+
+    #Bonus 2
+    volatility_plot(vol)

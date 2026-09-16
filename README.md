@@ -43,4 +43,27 @@
 - Uses `groupby("Year").idxmax()` to select the highest-volatility row in each year.
 - Writes `MaxVolatilityByYear.csv` with the same columns as Task 5.
 
-## Task 7: cQuant
+## Task 7: cQuant Model-Ready Format
+
+**Function:** `formatted_spot_history(df)`
+
+- Splits data by settlement point.
+- Pivots from one row per hour to one row per day, with 24 hourly price columns.
+- Maps hour-beginning timestamps to columns: `00:00` is `X1`, `23:00` is `X24`.
+- Adds a `Variable` column with the settlement point name.
+- Writes 15 files to `output/formattedSpotHistory/spot_<SettlementPoint>.csv`.
+
+## Bonus: Monthly Mean Price Plots
+
+**Function:** `mean_plots(avg)`
+
+- Assigns each monthly average to the first day of its month to create a chronological date axis.
+- Plots one line per settlement point, with a legend identifying each curve.
+- Writes `output/SettlementHubAveragePriceByMonth.png` (hubs only) and `output/LoadZoneAveragePriceByMonth.png` (load zones only).
+
+## Bonus: Volatility Plot
+
+**Function:** `volatility_plot(vol)`
+
+- Pivots Task 4 results so each year is a group and each hub is a bar.
+- Writes `output/HourlyVolatilityByHubAndYear.png`.
