@@ -2,6 +2,10 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 DATA_DIR = Path("historicalPriceData")
 OUT_DIR = Path("output")
 
@@ -101,6 +105,33 @@ def formatted_spot_history(df: pd.DataFrame) -> None:
 
     print("Task 7: files written =", len(list(spot_dir.glob("spot_*.csv"))))
 
+##################################################################################
+#Bonus 1
+def mean_plots(avg: pd.DataFrame) -> None:
+    """Monthly average price lines: one plot for hubs, one for load zones."""
+    avg = avg.assign(
+        MonthStart=pd.to_datetime(dict(year=avg["Year"], month=avg["Month"], day=1))
+    )
+    plots = [
+        ("HB_", "Monthly Average Price by Settlement Hub", "SettlementHubAveragePriceByMonth.png"),
+        ("LZ_", "Monthly Average Price by Load Zone", "LoadZoneAveragePriceByMonth.png"),
+    ]
+    for prefix, title, filename in plots:
+        fig, ax = plt.subplots(figsize=(14, 6))
+        subset = avg[avg["SettlementPoint"].str.startswith(prefix)]
+        for sp, g in subset.groupby("SettlementPoint"):
+            g = g.sort_values("MonthStart")
+            ax.plot(g["MonthStart"], g["AveragePrice"], label=sp)
+        ax.set_title(title)
+        ax.set_xlabel("Month")
+        ax.set_ylabel("Average Price ($/MWh)")
+        ax.legend(title="Settlement Point", loc="upper left", bbox_to_anchor=(1.01, 1))
+        ax.grid(alpha=0.3)
+        fig.tight_layout()
+        fig.savefig(OUT_DIR / filename, dpi=150)
+        plt.close(fig)
+        print(f"Bonus: wrote {filename}")
+
 if __name__ == "__main__":
     #Task 1
     OUT_DIR.mkdir(exist_ok=True)
@@ -123,3 +154,7 @@ if __name__ == "__main__":
 
     #Task 7
     formatted_spot_history(df)
+
+    ##############################
+    #Bonus 1
+    mean_plots(avg)
