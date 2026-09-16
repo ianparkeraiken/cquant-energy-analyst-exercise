@@ -76,3 +76,12 @@
 - Divides each 24-hour profile by its own mean so every profile averages exactly 1.
 - Writes 84 profiles (12 months x 7 days) per settlement point to `output/hourlyShapeProfiles/profile_<SettlementPoint>.csv`.
 - HB_PAN only has data for April to December 2019, so its January to March profiles are blank.
+
+## Bonus: Shape Profile Plot
+
+**Function:** `shape_profile_plot("HB_NORTH")`
+
+- Plots HB_NORTH Wednesday shape profiles for January, April, July, and October to compare seasons.
+- Plots July Wednesday vs Sunday to compare weekday and weekend shapes.
+- Writes `output/ShapeProfiles_HB_NORTH.png`.
+- Peaks follow demand: winter mornings (heating) and summer afternoons (cooling). Peak magnitudes are inflated by a small number of extreme price events, since profiles use a simple mean.

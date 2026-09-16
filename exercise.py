@@ -180,6 +180,42 @@ def hourly_shape_profiles(df: pd.DataFrame) -> None:
 
     print("Bonus: profile files written =", len(list(prof_dir.glob("profile_*.csv"))))
 
+#Bonus visualization of 24 hour profiles
+def shape_profile_plot(sp: str = "HB_NORTH") -> None:
+    """Plot selected normalized hourly shape profiles for one settlement point."""
+    p = pd.read_csv(OUT_DIR / "hourlyShapeProfiles" / f"profile_{sp}.csv")
+    x_cols = [f"X{h + 1}" for h in range(24)]
+    hours = range(1, 25)
+
+    def get_profile(month, dow):
+        return p[(p["Month"] == month) & (p["DayOfWeek"] == dow)][x_cols].iloc[0].to_numpy()
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6), sharey=True)
+
+    # Seasonal comparison, Wednesday (DayOfWeek 2)
+    for month, name in [(1, "January"), (4, "April"), (7, "July"), (10, "October")]:
+        ax1.plot(hours, get_profile(month, 2), marker="o", label=name)
+    ax1.set_title(f"{sp} Wednesday Shape Profile by Season")
+
+    # Weekday vs weekend, July
+    ax2.plot(hours, get_profile(7, 2), marker="o", label="Wednesday")
+    ax2.plot(hours, get_profile(7, 6), marker="o", label="Sunday")
+    ax2.set_title(f"{sp} July Shape Profile: Weekday vs Weekend")
+
+    for ax in (ax1, ax2):
+        ax.axhline(1, color="black", linestyle="--", linewidth=0.8)
+        ax.set_xlabel("Hour Ending (X1 to X24)")
+        ax.set_xticks(hours)
+        ax.grid(alpha=0.3)
+        ax.legend()
+    ax1.set_ylabel("Normalized Price (daily average = 1)")
+
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / f"ShapeProfiles_{sp}.png", dpi=150)
+    plt.close(fig)
+    print(f"Bonus: wrote ShapeProfiles_{sp}.png")
+
+
 if __name__ == "__main__":
     #Task 1
     OUT_DIR.mkdir(exist_ok=True)
@@ -212,3 +248,6 @@ if __name__ == "__main__":
 
     #Bonus 3
     hourly_shape_profiles(df)
+
+    #Bonus visualization of 24 hour profiles
+    shape_profile_plot("HB_NORTH")
