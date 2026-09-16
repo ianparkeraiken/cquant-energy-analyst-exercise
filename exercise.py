@@ -79,6 +79,28 @@ def max_volatility(vol: pd.DataFrame) -> pd.DataFrame:
     print("Task 6: max volatility by year\n", max_vol)
     return max_vol
 
+#TASK 7
+def formatted_spot_history(df: pd.DataFrame) -> None:
+    """One wide CSV per settlement point: Variable, Date, X1..X24."""
+    spot_dir = OUT_DIR / "formattedSpotHistory"
+    spot_dir.mkdir(parents=True, exist_ok=True)
+    x_cols = [f"X{h + 1}" for h in range(24)]  # hour-beginning 00:00 -> X1
+
+    for sp, g in df.groupby("SettlementPoint"):
+        wide = (
+            g.assign(Day=g["Date"].dt.strftime("%Y-%m-%d"))
+            .pivot(index="Day", columns="Hour", values="Price")
+            .reindex(columns=range(24))
+        )
+        wide.columns = x_cols
+        blanks = int(wide.isna().sum().sum())
+        wide = wide.rename_axis("Date").reset_index()
+        wide.insert(0, "Variable", sp)
+        wide.to_csv(spot_dir / f"spot_{sp}.csv", index=False)
+        print(f"Task 7: {sp}: {len(wide)} days, blank cells = {blanks}")
+
+    print("Task 7: files written =", len(list(spot_dir.glob("spot_*.csv"))))
+
 if __name__ == "__main__":
     #Task 1
     OUT_DIR.mkdir(exist_ok=True)
@@ -98,3 +120,6 @@ if __name__ == "__main__":
 
     #Task 6
     max_vol = max_volatility(vol)
+
+    #Task 7
+    formatted_spot_history(df)
