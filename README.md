@@ -67,3 +67,12 @@
 
 - Pivots Task 4 results so each year is a group and each hub is a bar.
 - Writes `output/HourlyVolatilityByHubAndYear.png`.
+
+## Bonus: Hourly Shape Profiles
+
+**Function:** `hourly_shape_profiles(df)`
+
+- Averages hourly prices by month of year, day of week (0 = Monday), and hour of day.
+- Divides each 24-hour profile by its own mean so every profile averages exactly 1.
+- Writes 84 profiles (12 months x 7 days) per settlement point to `output/hourlyShapeProfiles/profile_<SettlementPoint>.csv`.
+- HB_PAN only has data for April to December 2019, so its January to March profiles are blank.

@@ -148,6 +148,38 @@ def volatility_plot(vol: pd.DataFrame) -> None:
     plt.close()
     print("Bonus: wrote HourlyVolatilityByHubAndYear.png")
 
+#Bonus 3
+def hourly_shape_profiles(df: pd.DataFrame) -> None:
+    """84 normalized 24-hour profiles (month x day of week) per settlement point."""
+    prof_dir = OUT_DIR / "hourlyShapeProfiles"
+    prof_dir.mkdir(parents=True, exist_ok=True)
+    x_cols = [f"X{h + 1}" for h in range(24)]
+    full_grid = pd.MultiIndex.from_product(
+        [range(1, 13), range(7)], names=["Month", "DayOfWeek"]
+    )
+
+    for sp, g in df.groupby("SettlementPoint"):
+        shape = (
+            g.groupby(["Month", "DayOfWeek", "Hour"])["Price"].mean()
+            .unstack("Hour")
+            .reindex(columns=range(24))
+        )
+        row_mean = shape.mean(axis=1)
+        if (row_mean <= 0).any():
+            print(f"Bonus: WARNING {sp} has profiles with average price <= 0")
+        shape = shape.div(row_mean, axis=0)   # each row now averages exactly 1
+        shape = shape.reindex(full_grid)      # always 84 rows
+        shape.columns = x_cols
+
+        out = shape.reset_index()
+        out.insert(0, "Variable", sp)
+        filled = out.dropna(subset=x_cols, how="all")
+        assert np.allclose(filled[x_cols].mean(axis=1), 1.0), f"{sp} normalization failed"
+        out.to_csv(prof_dir / f"profile_{sp}.csv", index=False)
+        print(f"Bonus: {sp}: {len(filled)} of 84 profiles filled")
+
+    print("Bonus: profile files written =", len(list(prof_dir.glob("profile_*.csv"))))
+
 if __name__ == "__main__":
     #Task 1
     OUT_DIR.mkdir(exist_ok=True)
@@ -177,3 +209,6 @@ if __name__ == "__main__":
 
     #Bonus 2
     volatility_plot(vol)
+
+    #Bonus 3
+    hourly_shape_profiles(df)
